@@ -7,7 +7,7 @@
 pkgname=lxd
 _pkgname=lxd
 pkgver=3.13
-pkgrel=1
+pkgrel=2
 pkgdesc="REST API, command line tool and OpenStack integration plugin for LXC."
 arch=('x86_64')
 url="https://github.com/lxc/lxd"
@@ -60,9 +60,9 @@ build() {
   cd "${GOPATH}/src/${_lxd}"
   git checkout lxd-${pkgver}
   make deps
-  export CGO_CFLAGS="-I${GOPATH}/deps/sqlite/ -I${GOPATH}/deps/dqlite/include/"
-  export CGO_LDFLAGS="-L${GOPATH}/deps/sqlite/.libs/ -L${GOPATH}/deps/dqlite/.libs/"
-  export LD_LIBRARY_PATH="${GOPATH}/deps/sqlite/.libs/:${GOPATH}/deps/dqlite/.libs/"
+  export CGO_CFLAGS="-I${GOPATH}/deps/sqlite/ -I${GOPATH}/deps/libco/ -I${GOPATH}/deps/raft/include/ -I${GOPATH}/deps/dqlite/include/"
+  export CGO_LDFLAGS="-L${GOPATH}/deps/sqlite/.libs/ -L${GOPATH}/deps/libco/ -L${GOPATH}/deps/raft/.libs -L${GOPATH}/deps/dqlite/.libs/"
+  export LD_LIBRARY_PATH="${GOPATH}/deps/sqlite/.libs/:${GOPATH}/deps/libco/:${GOPATH}/deps/raft/.libs/:${GOPATH}/deps/dqlite/.libs/"
   make
 }
 
@@ -79,6 +79,8 @@ package() {
   cp --no-dereference --preserve=timestamps \
     "${go_deps_dir}/sqlite/.libs/"libsqlite3.so* \
     "${go_deps_dir}/dqlite/.libs/"libdqlite.so* \
+    "${go_deps_dir}/raft/.libs/"libraft.so* \
+    "${go_deps_dir}/libco/"libco.so* \
     "${pkgdir}/usr/lib/lxd"
   patchelf --set-rpath "/usr/lib/lxd" "${pkgdir}/usr/lib/lxd/libdqlite.so"
 
